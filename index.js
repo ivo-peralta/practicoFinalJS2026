@@ -1,77 +1,81 @@
 
-// Variables globales y configuración básica
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const restartBtn = document.getElementById("restartBtn");
+const manualRestartBtn = document.getElementById("manualRestartBtn");
 
-let gameSpeed = 5;           // Velocidad constante (los cambios se harán en la modificación)
-let gravity = 0.5;           // Fuerza de gravedad
+const initialGameSpeed = 5;
+const speedIncreasePerMilestone = 0.5;
+const gravity = 0.5;
+let gameSpeed = initialGameSpeed;
 let gameOver = false;
 let score = 0;
+let highScore = Number(localStorage.getItem("dinoHighScore")) || 0;
+let audioContext;
+let animationFrameId;
 
-// Objeto dinosaurio
-let dino = {
+const dino = {
     x: 50,
-    y: canvas.height - 47,   // La altura del dino es de 47 px (se alinea al "suelo")
+    y: canvas.height - 47,
     width: 44,
     height: 47,
     vy: 0,
     isJumping: false
 };
 
-// Objeto obstáculo (cacto)
-let obstacle = {
+const obstacle = {
     x: canvas.width,
-    y: canvas.height - 40,   // Altura del cacto: 40 px, alineado al suelo
+    y: canvas.height - 40,
     width: 25,
     height: 40
 };
 
-// Carga de imágenes (ajusta las rutas según tu estructura)
-let dinoImg = new Image();
-dinoImg.src = "dino.png";      // Asegúrate de tener esta imagen en la ruta indicada
-let cactusImg = new Image();
-cactusImg.src = "cactus.png";  // Asegúrate de tener esta imagen en la ruta indicada
+const dinoImg = new Image();
+dinoImg.src = "assets/css/dino.png";
+const cactusImg = new Image();
+cactusImg.src = "assets/css/cactus.png";
 
-// Función principal del ciclo de juego
 function gameLoop() {
     if (!gameOver) {
         update();
         draw();
-        requestAnimationFrame(gameLoop);
+        animationFrameId = requestAnimationFrame(gameLoop);
     }
 }
 
-// Actualiza posiciones y controla la lógica del juego
 function update() {
-    score++;  // Suma puntos continuamente (1 punto por frame)
-    
-    // Física del salto del dinosaurio
+    score++;
+    if (score > highScore) {
+        highScore = score;
+    }
+    gameSpeed = initialGameSpeed
+        + Math.floor(score / 100) * speedIncreasePerMilestone;
+    if (score % 100 === 0) {
+        playSound(880);
+    }
+
     if (dino.isJumping) {
         dino.vy += gravity;
         dino.y += dino.vy;
-        // Cuando el dino aterriza en el "suelo"
         if (dino.y >= canvas.height - dino.height) {
             dino.y = canvas.height - dino.height;
             dino.isJumping = false;
             dino.vy = 0;
         }
     }
-    
-    // Mueve el obstáculo de derecha a izquierda
+
     obstacle.x -= gameSpeed;
-    // Cuando el obstáculo sale por la izquierda, se reubica a la derecha con un espacio aleatorio
     if (obstacle.x + obstacle.width < 0) {
         obstacle.x = canvas.width + Math.random() * 200;
     }
-    
-    // Detección simple de colisiones (rectángulos)
+
     if (collision(dino, obstacle)) {
         gameOver = true;
-        document.getElementById("restartBtn").style.display = "block";
+        saveHighScore();
+        restartBtn.hidden = false;
     }
 }
 
-// Función de detección de colisiones
 function collision(rect1, rect2) {
     return (
         rect1.x < rect2.x + rect2.width &&
@@ -81,24 +85,26 @@ function collision(rect1, rect2) {
     );
 }
 
-// Dibuja el juego: fondo, puntaje, dinosaurio y obstáculo
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Dibuja el puntaje
+
     ctx.fillStyle = "#000";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 10, 25);
-    
-    // Dibuja el dinosaurio (si la imagen está cargada, se usa; si no, se dibuja un rectángulo verde)
+    ctx.font = "16px Arial";
+    ctx.fillText("Puntaje: " + score, 10, 22);
+    ctx.fillText("Récord: " + highScore, 475, 22);
+
+    ctx.save();
+    if (dino.isJumping) {
+        ctx.filter = "hue-rotate(120deg)";
+    }
     if (dinoImg.complete) {
         ctx.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
     } else {
-        ctx.fillStyle = "green";
+        ctx.fillStyle = dino.isJumping ? "#16a34a" : "green";
         ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
     }
-    
-    // Dibuja el obstáculo (si la imagen está cargada, se usa; si no, se dibuja un rectángulo marrón)
+    ctx.restore();
+
     if (cactusImg.complete) {
         ctx.drawImage(cactusImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     } else {
@@ -107,29 +113,65 @@ function draw() {
     }
 }
 
-// Maneja el salto al presionar la barra espaciadora
-document.addEventListener("keydown", function(e) {
-    if (e.code === "Space" && !dino.isJumping && !gameOver) {
-        dino.isJumping = true;
-        dino.vy = -10;  // Velocidad inicial de salto
-        // Aquí se podrá agregar el efecto de sonido del salto en la modificación
-        e.preventDefault(); // Evita el scroll de la página
+function playSound(frequency) {
+    if (typeof window.AudioContext === "undefined") {
+        return;
     }
-});
 
-// Función para reiniciar el juego al hacer clic en el botón
-document.getElementById("restartBtn").addEventListener("click", function() {
+    if (!audioContext) {
+        audioContext = new AudioContext();
+    }
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    const oscillator = audioContext.createOscillator();
+    const volume = audioContext.createGain();
+    oscillator.frequency.value = frequency;
+    volume.gain.setValueAtTime(0.15, audioContext.currentTime);
+    volume.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
+    oscillator.connect(volume);
+    volume.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.12);
+}
+
+function saveHighScore() {
+    localStorage.setItem("dinoHighScore", String(highScore));
+}
+
+function jump() {
+    if (!dino.isJumping && !gameOver) {
+        dino.isJumping = true;
+        dino.vy = -10;
+        playSound(520);
+    }
+}
+
+function resetGame() {
+    cancelAnimationFrame(animationFrameId);
+    saveHighScore();
     gameOver = false;
     score = 0;
+    gameSpeed = initialGameSpeed;
     dino.y = canvas.height - dino.height;
     dino.isJumping = false;
     dino.vy = 0;
     obstacle.x = canvas.width;
-    this.style.display = "none";
-    gameLoop();
+    restartBtn.hidden = true;
+    draw();
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", function(event) {
+    if (event.code === "Space") {
+        event.preventDefault();
+        jump();
+    }
 });
 
-// Inicia el juego cuando la ventana carga
-window.onload = function() {
-    gameLoop();
-};
+restartBtn.addEventListener("click", resetGame);
+manualRestartBtn.addEventListener("click", resetGame);
+
+draw();
+animationFrameId = requestAnimationFrame(gameLoop);

@@ -1,18 +1,24 @@
 <!doctype html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Juego del Dinosaurio</title>
-  <link rel="stylesheet" href="index.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Juego del Dinosaurio</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-  <!-- El canvas donde se desarrolla el juego -->
-  <canvas id="gameCanvas" width="600" height="150"></canvas>
-  
-  <!-- Botón de reinicio que aparecerá al finalizar el juego -->
-  <button id="restartBtn" style="display:none;">Reiniciar</button>
-  
-  <script src="index.js"></script>
+
+    <h1>Juego del Dinosaurio</h1>
+
+    <div>
+        <p id="score">Puntuación: 0</p>
+        <p id="bestScore">Récord: 0</p>
+    </div>
+
+    <canvas id="gameCanvas" width="600" height="150"></canvas>
+
+    <button id="restartBtn">Reiniciar juego</button>
+
+    <script src="index.js"></script>
 </body>
 </html>
