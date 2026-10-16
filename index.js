@@ -38,6 +38,9 @@ const obstacle = {
 const dinoImg = new Image();
 dinoImg.src = "assets/css/dino.png";
 
+const dinoDeadImg = new Image();
+dinoDeadImg.src = "dinoRojo.png";
+
 const cactusImg = new Image();
 cactusImg.src = "assets/css/cactus.png";
 
@@ -118,13 +121,15 @@ function draw() {
     // Dibujamos el dinosaurio
     ctx.save();
 
-    if (dino.isJumping) {
+    if (dino.isJumping && !gameOver) {
         ctx.filter = "hue-rotate(120deg)";
     }
 
-    if (dinoImg.complete) {
+    const currentDinoImg = gameOver ? dinoDeadImg : dinoImg;
+
+    if (currentDinoImg.complete && currentDinoImg.naturalWidth > 0) {
         ctx.drawImage(
-            dinoImg,
+            currentDinoImg,
             dino.x,
             dino.y,
             dino.width,
@@ -132,7 +137,7 @@ function draw() {
         );
     } else {
         // Si no carga la imagen, usamos un rectángulo
-        ctx.fillStyle = dino.isJumping ? "#16a34a" : "green";
+        ctx.fillStyle = gameOver ? "red" : dino.isJumping ? "#16a34a" : "green";
         ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
     }
 
@@ -234,7 +239,9 @@ document.addEventListener("keydown", function(event) {
 
 // Los dos botones sirven para volver a jugar
 restartBtn.addEventListener("click", resetGame);
-manualRestartBtn.addEventListener("click", resetGame);
+if (manualRestartBtn) {
+    manualRestartBtn.addEventListener("click", resetGame);
+}
 
 // Dibujamos la pantalla inicial y empezamos el juego
 draw();
