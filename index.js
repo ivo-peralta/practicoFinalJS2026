@@ -2,7 +2,6 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const restartBtn = document.getElementById("restartBtn");
-const manualRestartBtn = document.getElementById("manualRestartBtn");
 
 // Valores iniciales del juego
 const velocidadInicial = 5;
@@ -39,7 +38,7 @@ const dinoImg = new Image();
 dinoImg.src = "assets/css/dino.png";
 
 const dinoDeadImg = new Image();
-dinoDeadImg.src = "dinoRojo.png";
+dinoDeadImg.src = "assets/css/dinoRojo.png";
 
 const cactusImg = new Image();
 cactusImg.src = "assets/css/cactus.png";
@@ -144,7 +143,7 @@ function draw() {
     ctx.restore();
 
     // Dibujamos el cactus
-    if (cactusImg.complete) {
+    if (cactusImg.complete && cactusImg.naturalWidth > 0) {
         ctx.drawImage(
             cactusImg,
             obstacle.x,
@@ -237,11 +236,7 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
-// Los dos botones sirven para volver a jugar
 restartBtn.addEventListener("click", resetGame);
-if (manualRestartBtn) {
-    manualRestartBtn.addEventListener("click", resetGame);
-}
 
 // Dibujamos la pantalla inicial y empezamos el juego
 draw();

@@ -4,16 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Juego del Dinosaurio</title>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Juego del Dinosaurio</h1>
-    <div>
-        <p id="score">Puntuación: 0</p>
-        <p id="bestScore">Récord: 0</p>
-    </div>
-    <canvas id="gameCanvas" width="600" height="150"></canvas>
-    <button id="restartBtn">Reiniciar juego</button>
+    <main class="game">
+        <h1>Juego del Dinosaurio</h1>
+        <canvas id="gameCanvas" width="600" height="150" aria-label="Jueguito del dinosaurio apreta espacio para saltar">
+        </canvas>
+        <div class="controls">
+            <button id="restartBtn" type="button" hidden>Reiniciar juego</button>
+        </div>
+    </main>
     <script src="index.js"></script>
 </body>
 </html>

@@ -3,38 +3,36 @@ html, body {
     margin: 0;
     padding: 0;
     background: #f7f7f7;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-  }
+}
 
-  .game {
+.game {
     width: min(600px, calc(100% - 32px));
+    margin: auto;
     text-align: center;
-  }
+}
 
-  h1 {
+h1 {
     font: 700 1.5rem Arial, sans-serif;
-    color: #5e3302
-  }
+    color: #5e3302;
+}
 
-  canvas {
+canvas {
     display: block;
     width: 100%;
     height: auto;
     border: 1px solid #000;
     background: #fff;
-  }
+}
 
-  .controls {
+.controls {
     display: flex;
     justify-content: center;
     gap: 12px;
     margin-top: 16px;
-  }
+}
 
-  button {
+button {
     padding: 9px 14px;
     border: 0;
     border-radius: 4px;
@@ -42,13 +40,12 @@ html, body {
     color: #fff;
     cursor: pointer;
     font: 600 0.95rem Arial, sans-serif;
-  }
+}
 
-  button:hover {
+button:hover {
     background: #555;
-  }
+}
 
-  button[hidden] {
+button[hidden] {
     display: none;
-  }
-
+}
