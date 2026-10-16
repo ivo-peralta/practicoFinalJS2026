@@ -16,6 +16,7 @@ html, body {
 
   h1 {
     font: 700 1.5rem Arial, sans-serif;
+    color: #5e3302
   }
 
   canvas {
